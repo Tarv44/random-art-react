@@ -1,0 +1,19 @@
+.cell.small {
+    height: 50px;
+    width: 50px;
+}
+
+.cell.medium {
+    height: 30px;
+    width: 30px;
+}
+
+.cell.large {
+    height: 15px;
+    width: 15px;
+}
+
+.cell.extraLarge {
+    height: 5px;
+    width: 5px;
+}
