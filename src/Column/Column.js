@@ -5,6 +5,11 @@ import './Column.css'
 
 export default class Column extends Component {
     static contextType = GridContext;
+
+    static defaultProps = {
+        columnData: []
+    }
+
     render() {
         const cells = this.props.columnData.map((cell, i) => {
             return <Cell cellData={cell} key={cell.id} />

@@ -4,7 +4,8 @@ const GridContext = React.createContext({
     small: {},
     medium: {},
     large: {},
-    extraLarge: {}
+    extraLarge: {},
+    formSubmit: () => {}
 })
 
 export default GridContext;

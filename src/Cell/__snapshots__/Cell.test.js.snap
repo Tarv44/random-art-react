@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders UI as expected 1`] = `
+<div
+  className="cell small"
+  style={
+    Object {
+      "animationDelay": "1s",
+      "backgroundColor": "rgba(0, 0, 0, 1)",
+    }
+  }
+/>
+`;
