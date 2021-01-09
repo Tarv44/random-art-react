@@ -190,7 +190,7 @@ class App extends Component {
 
   updateColorChances = (gridId, valueId, value) => {
     const newState = this.state;
-    newState[gridId].formConstraints.colorChances[valueId] = Number(value);
+    newState[gridId].formConstraints.colorChances[valueId] = value;
     this.setState({
       newState
     })

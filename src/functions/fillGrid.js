@@ -99,9 +99,9 @@ function selectNewColor(surrColors, currentGridConstraints) {
     const colorSelect = surrColors[colorIndex]
     const colorChances = currentGridConstraints.colorChances
     let newColor
-    if (probability <= colorChances.same) {
+    if (probability <= parseFloat(colorChances.same)) {
         newColor = colorSelect
-    } else if (probability <= colorChances.same + colorChances.skew) {
+    } else if (probability <= parseFloat(colorChances.same) + parseFloat(colorChances.skew)) {
         newColor = skewColor(colorSelect, currentGridConstraints)
     } else {
         newColor = randomRGB()
@@ -124,7 +124,7 @@ export function fillStart(currentGrid, gridId) {
         currentGrid.grid = generateEmptyGrid(currentGrid, gridId)
         currentGrid.totalCellsFilled = 0
     }
-    
+
     if (currentGrid.totalCellsFilled === 0) {
         fillInitCells(currentGrid)
     }

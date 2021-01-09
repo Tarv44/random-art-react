@@ -6,7 +6,7 @@ export default class colorFillChances extends Component {
     static contextType = GridContext;
     render() {
         const currentGrid = this.context[this.props.gridId]
-        let newColorChance = 100 - (currentGrid.formConstraints.colorChances.same + currentGrid.formConstraints.colorChances.skew)
+        let newColorChance = 100 - (parseFloat(currentGrid.formConstraints.colorChances.same) + parseFloat(currentGrid.formConstraints.colorChances.skew))
         newColorChance = newColorChance < 0 ? 0 : newColorChance
         return (
             <fieldset className='colorFillChances'>
