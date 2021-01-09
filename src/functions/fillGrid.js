@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {randomRGB} from './colorFunctions';
+import generateEmptyGrid from './generateEmptyGrid';
 
 function randomFromRange(range) {
     return Math.floor(Math.random() * range)
@@ -41,15 +42,14 @@ function getSurroundingColors(currentGrid, cellCoor) {
     return surrColors
 }
 
-function skewColor(color) {
-    console.log('skew color ran.')
-    console.log('Original Color:', color)
+function skewColor(color, currentGridConstraints) {
+    const range = currentGridConstraints.skewConstraints.changeRange
     let red 
     let green
     let blue
-    const redChange = (Math.floor(Math.random() * 10) + 1)
-    const greenChange = (Math.floor(Math.random() * 10) + 1)
-    const blueChange = (Math.floor(Math.random() * 10) + 1)
+    const redChange = (Math.floor(Math.random() * range) + 1)
+    const greenChange = (Math.floor(Math.random() * range) + 1)
+    const blueChange = (Math.floor(Math.random() * range) + 1)
 
     if (Math.random() < .5) {
         red = color.red + redChange
@@ -90,39 +90,50 @@ function skewColor(color) {
     const rgb = `rgba(${red}, ${green}, ${blue}, 1)`
 
     const newColor = {red, green, blue, rgb}
-
-    console.log('New Color:', newColor)
     return newColor
 }
 
-function selectNewColor(surrColors) {
+function selectNewColor(surrColors, currentGridConstraints) {
     const probability = (Math.random()*100)
     const colorIndex = (Math.floor(surrColors.length * Math.random()))
     const colorSelect = surrColors[colorIndex]
+    const colorChances = currentGridConstraints.colorChances
     let newColor
-    if (probability <= 80) {
+    if (probability <= colorChances.same) {
         newColor = colorSelect
-    } else if (probability <= 99) {
-        newColor = skewColor(colorSelect)
+    } else if (probability <= colorChances.same + colorChances.skew) {
+        newColor = skewColor(colorSelect, currentGridConstraints)
     } else {
         newColor = randomRGB()
     }
     return newColor
 }
 
-export function fillInitCells(state, gridId) {
-    const currentGrid = state[gridId]
-    const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
-    currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
-    currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
-    const newState = state;
-    newState[gridId] = currentGrid;
-    return newState;
+function fillInitCells(currentGrid) {
+    const totalStartNodes = currentGrid.formConstraints.nodeConstraints.totalStart
+    for (let i = 1; i <= totalStartNodes; i++) {
+        const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
+        currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
+        currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
+        currentGrid.totalCellsFilled += 1
+    }
 }
 
-export function fillColor(state, gridId) {
-    const currentGrid = state[gridId]
+export function fillStart(currentGrid, gridId) {
+    if (currentGrid.totalCellsFilled === currentGrid.totalCells) {
+        currentGrid.grid = generateEmptyGrid(currentGrid, gridId)
+        currentGrid.totalCellsFilled = 0
+    }
+    
+    if (currentGrid.totalCellsFilled === 0) {
+        fillInitCells(currentGrid)
+    }
 
+    currentGrid.filling = true
+    return currentGrid
+}
+
+export function fillColor(currentGrid) {
     let unSelected = true;
     while(unSelected) {
         const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
@@ -130,15 +141,14 @@ export function fillColor(state, gridId) {
         if (cell.color === null) {
             const surrColors = getSurroundingColors(currentGrid, cellCoor);
             if (surrColors.length > 0) {
-                const newColor = selectNewColor(surrColors)
+                const newColor = selectNewColor(surrColors, currentGrid.formConstraints)
                 currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = newColor;
                 currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
+                currentGrid.totalCellsFilled += 1;
                 unSelected = false
             }
         } 
     }
 
-    const newState = state;
-    newState[gridId] = currentGrid
-    return newState
+    return currentGrid
 }

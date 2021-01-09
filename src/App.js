@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Grid from './Grid/Grid';
 import generateEmptyGrid from './functions/generateEmptyGrid';
 import {randomRGB} from './functions/colorFunctions';
-import {fillColor, fillInitCells} from './functions/fillGrid';
+import {fillColor, fillStart} from './functions/fillGrid';
 import Nav from './Nav/Nav';
 import {Route ,Redirect} from 'react-router-dom';
 import GridContext from './GridContext';
@@ -16,28 +16,109 @@ class App extends Component {
     this.state = {
       emptyGridsRendered: false,
       small: {
-        totalColumns: 25,
-        totalRows: 12,
-        intervalDelay: 1000,
-        grid: null
+        totalColumns: 25, //25
+        totalRows: 12, //12
+        totalCells: null,
+        totalCellsFilled: 0,
+        filling: false,
+        grid: null,
+        formConstraints: {
+          colorChances: {
+            same: 80,
+            skew: 19
+          },
+          skewConstraints: {
+            changeRange: 10
+          },
+          nodeConstraints: {
+            totalStart: 1,
+            chanceNew: 0,
+            chanceNewSame: 0,
+            chanceNewDiff: 0
+          },
+          timeSizeConstraints: {
+            intervalDelay: 1000
+          }
+        }
       },
       medium: {
         totalColumns: 42,
         totalRows: 20,
-        intervalDelay: 750,
-        grid: null
+        totalCells: null,
+        totalCellsFilled: 0,
+        filling: false,
+        grid: null,
+        formConstraints: {
+          colorChances: {
+            same: 80,
+            skew: 19
+          },
+          skewConstraints: {
+            changeRange: 10
+          },
+          nodeConstraints: {
+            totalStart: 1,
+            chanceNew: 0,
+            chanceNewSame: 0,
+            chanceNewDiff: 0
+          },
+          timeSizeConstraints: {
+            intervalDelay: 750
+          }
+        }
       },
       large: {
         totalColumns: 84,
         totalRows: 40,
-        intervalDelay: 500,
-        grid: null
+        totalCells: null,
+        totalCellsFilled: 0,
+        filling: false,
+        grid: null,
+        formConstraints: {
+          colorChances: {
+            same: 80,
+            skew: 19
+          },
+          skewConstraints: {
+            changeRange: 10
+          },
+          nodeConstraints: {
+            totalStart: 1,
+            chanceNew: 0,
+            chanceNewSame: 0,
+            chanceNewDiff: 0
+          },
+          timeSizeConstraints: {
+            intervalDelay: 500
+          }
+        }
       },
       extraLarge: {
         totalColumns: 250,
         totalRows: 120,
+        totalCells: null,
+        totalCellsFilled: 0,
+        filling: false,
         intervalDelay: 250,
-        grid: null
+        grid: null,
+        formConstraints: {
+          colorChances: {
+            same: 80,
+            skew: 19
+          },
+          skewConstraints: {
+            changeRange: 10
+          },
+          nodeConstraints: {
+            totalStart: 1,
+            chanceNew: 0,
+            chanceNewSame: 0,
+            chanceNewDiff: 0
+          },
+          timeSizeConstraints: {
+            intervalDelay: 250
+          }
+        }
       }
     }
   }
@@ -47,49 +128,96 @@ class App extends Component {
       emptyGridsRendered: true,
       small: {
         ...prevState.small,
+        totalCells: this.state.small.totalRows * this.state.small.totalColumns,
         grid: generateEmptyGrid(this.state.small, 'small'),
       },
       medium: {
         ...prevState.medium,
+        totalCells: this.state.medium.totalRows * this.state.medium.totalColumns,
         grid: generateEmptyGrid(this.state.medium, 'medium')
       },
       large: {
         ...prevState.large,
+        totalCells: this.state.large.totalRows * this.state.large.totalColumns,
         grid: generateEmptyGrid(this.state.large, 'large')
       },
       extraLarge: {
         ...prevState.extraLarge,
+        totalCells: this.state.extraLarge.totalRows * this.state.extraLarge.totalColumns,
         grid: generateEmptyGrid(this.state.extraLarge, 'extraLarge')
       }
 
     }))   
   }
 
-  handleFormSubmit = (event, gridId) => {
+  handleFormStart = (event, gridId) => {
     event.preventDefault();
 
-    const firstState = fillInitCells(this.state, gridId);
-    this.setState({
-      firstState
-    })
+    this.setState({ [gridId]: fillStart(this.state[gridId],gridId)})
 
-    const intervalDelay = this.state[gridId].intervalDelay;
-    const gridSize = this.state[gridId].totalColumns * this.state[gridId].totalRows
-    let count = 0
+    const intervalDelay = this.state[gridId].formConstraints.timeSizeConstraints.intervalDelay;
     const fillInterval = setInterval(() => {
-      if (count < gridSize) {
-        const newState = fillColor(this.state, gridId)
+      if (this.state[gridId].totalCellsFilled < this.state[gridId].totalCells && this.state[gridId].filling) {
         this.setState({
-          newState
+          [gridId]: fillColor(this.state[gridId])
         })
-        count += 1;
+        console.log(`Total cells filled: ${this.state[gridId].totalCellsFilled}`)
       } else {
+        if (this.state[gridId].filling) {
+          this.setState({
+            [gridId]: {
+              ...this.state[gridId],
+              filling: false
+            }
+          })
+        }
         clearInterval(fillInterval);
+        console.log('interval cleared')
       }
     },intervalDelay);
-    // const newState = this.state;
-    // newState[gridId].grid.columns[0][0].color = randomRGB();
-    // 
+  }
+
+  handleFormStop = (event, gridId) => {
+    event.preventDefault();
+
+    this.setState({
+      [gridId]: {
+        ...this.state[gridId],
+        filling: false
+      }
+    })
+  }
+
+  updateColorChances = (gridId, valueId, value) => {
+    const newState = this.state;
+    newState[gridId].formConstraints.colorChances[valueId] = Number(value);
+    this.setState({
+      newState
+    })
+  }
+
+  updateSkewConstraints = (gridId, valueId, value) => {
+    const newState = this.state;
+    newState[gridId].formConstraints.skewConstraints[valueId] = Number(value);
+    this.setState({
+      newState
+    })
+  }
+
+  updateNodeConstraints = (gridId, valueId, value) => {
+    const newState = this.state;
+    newState[gridId].formConstraints.nodeConstraints[valueId] = Number(value);
+    this.setState({
+      newState
+    })
+  }
+
+  updateTimeSizeConstraints = (gridId, valueId, value) => {
+    const newState = this.state;
+    newState[gridId].formConstraints.timeSizeConstraints[valueId] = Number(value);
+    this.setState({
+      newState
+    })
   }
   
   
@@ -99,7 +227,12 @@ class App extends Component {
       medium: this.state.medium,
       large: this.state.large,
       extraLarge: this.state.extraLarge,
-      formSubmit: this.handleFormSubmit
+      formStart: this.handleFormStart,
+      updateColorChances: this.updateColorChances,
+      updateSkewConstraints: this.updateSkewConstraints,
+      updateNodeConstraints: this.updateNodeConstraints,
+      updateTimeSizeConstraints: this.updateTimeSizeConstraints,
+      formStop: this.handleFormStop
     }
 
     return (

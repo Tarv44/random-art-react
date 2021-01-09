@@ -1,5 +1,9 @@
 import React, {Component} from 'react';
 import GridContext from '../GridContext';
+import ColorFillChances from '../colorFillChances/colorFillChances';
+import SkewConstraints from '../SkewConstraints/SkewConstraints';
+import NodeConstraints from '../NodeConstraints/NodeConstraints';
+import TimeSizeConstraints from '../TimeSizeConstraints/TimeSizeConstraints'
 import './GridForm.css';
 
 export default class GridForm extends Component {
@@ -7,9 +11,14 @@ export default class GridForm extends Component {
 
     render() {
         return (
-            <form onSubmit={e => this.context.formSubmit(e, this.props.match.params.gridId)}>
+            <form onSubmit={e => this.context.formStart(e, this.props.match.params.gridId)}>
                 <h2>Form Displayed Here</h2>
-                <button type='submit'>Generate Random Colors</button>
+                <ColorFillChances gridId={this.props.match.params.gridId}/>
+                <SkewConstraints gridId={this.props.match.params.gridId}/>
+                <NodeConstraints gridId={this.props.match.params.gridId}/>
+                <TimeSizeConstraints gridId={this.props.match.params.gridId}/>
+                <button type='submit'>Start</button>
+                <button onClick={e => this.context.formStop(e, this.props.match.params.gridId)}>Stop</button>
             </form>
         )
     }

@@ -2,4 +2,14 @@ form {
     border: solid black 3px;
     text-align: center;
     margin: 10px 0;
+    padding: 0 10px;
+    max-width: 90%;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: space-around;
+}
+
+form > * {
+    margin-bottom: 5px;
 }

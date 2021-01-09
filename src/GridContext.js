@@ -5,7 +5,12 @@ const GridContext = React.createContext({
     medium: {},
     large: {},
     extraLarge: {},
-    formSubmit: () => {}
+    formStart: () => {},
+    formStop: () => {},
+    updateColorChances: () => {},
+    updateSkewConstraints: () => {},
+    updateNodeConstraints: () => {},
+    updateTimeSizeConstraints: () => {}
 })
 
 export default GridContext;
