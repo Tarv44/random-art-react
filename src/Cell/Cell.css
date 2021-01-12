@@ -1,6 +1,6 @@
 .cell {
     opacity: 0;
-    transition: 1s ease-in opacity;
+    /* transition: 1s ease-in opacity; */
 } 
 
 .cell.small {

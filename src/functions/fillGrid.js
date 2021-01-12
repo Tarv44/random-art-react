@@ -6,40 +6,76 @@ function randomFromRange(range) {
     return Math.floor(Math.random() * range)
 }
 
+function randomFromArray(array) {
+    const i = randomFromRange(array.length)
+    return array[i]
+}
+
 function selectRandomCell(totalColumns, totalRows) {
     const column = randomFromRange(totalColumns);
     const row = randomFromRange(totalRows);
     return {column, row}
 }
 
-function surroundingCoors(currentGrid, cellCoor) {
+function selectFillCenter(currentGrid) {
+    const index = randomFromRange(currentGrid.fillCenters.length)
+    const coors = currentGrid.fillCenters[index]
+    console.log('Fill Center:')
+    console.log({coors, index})
+    return {coors, index}
+    
+}
+
+function allSurrCoors(gridCols, cellCoor) {
+    console.log(gridCols)
     const columns = [cellCoor.column-1, cellCoor.column, cellCoor.column+1]
-        .filter(num => num > -1 && num < currentGrid.totalColumns)
+        .filter(num => num > -1 && num < gridCols.length)
     const rows = [cellCoor.row-1, cellCoor.row, cellCoor.row+1]
-        .filter(num => num > -1 && num < currentGrid.totalRows)
+        .filter(num => num > -1 && num < gridCols[0].length)
     const coors = [];
     for (let c = 0; c < columns.length; c++) {
         for (let r = 0; r < rows.length; r++) {
-            const coor = {column: columns[c], row: rows[r]}
+            const id = `c${columns[c]}r${rows[r]}`
+            const coor = {column: columns[c], row: rows[r], id}
             if (!(cellCoor.column === coor.column && cellCoor.row === coor.row)) {
                 coors.push(coor)
             }
 
         }
     }
+    console.log('All Surrounding Coors')
+    console.log(coors)
     return coors
 }
 
-function getSurroundingColors(currentGrid, cellCoor) {
-    const coors = surroundingCoors(currentGrid, cellCoor);
-    const surrColors = [];
-    for (let i = 0; i < coors.length; i++) {
-        const cellColor = currentGrid.grid.columns[coors[i].column][coors[i].row].color
-        if (cellColor !== null) {
-            surrColors.push(cellColor)
+function getSurrEmpties(gridCols, cellCoor) {
+    const surrCoors = allSurrCoors(gridCols, cellCoor)
+    const surrEmpties = surrCoors.filter(coor => 
+        gridCols[coor.column][coor.row].color === null)
+    console.log('Surrounding Empties:')
+    console.log(surrEmpties)
+    return surrEmpties
+}
+
+function getSurrColors(gridCols, cellCoor) {
+    const coors = allSurrCoors(gridCols, cellCoor);
+    const surrColors = coors.filter(coor =>
+        gridCols[coor.column][coor.row].color !== null)
+    console.log('Surrounding Colors:')
+    console.log(surrColors)
+    return surrColors
+}
+
+function updateFillableCells(gridCols, fillableCells, currentCoor) {
+    const newList = fillableCells.filter(cell => cell.id !== currentCoor.id)
+    const allSurrEmpties = getSurrEmpties(gridCols, currentCoor)
+    const newFillables = []
+    for(let i = 0; i < allSurrEmpties.length; i++) {
+        if(!fillableCells.some(cell => cell.id === allSurrEmpties[i].id)) {
+            newFillables.push(allSurrEmpties[i])
         }
     }
-    return surrColors
+    return newList.concat(newFillables)
 }
 
 function skewColor(color, currentGridConstraints) {
@@ -93,16 +129,14 @@ function skewColor(color, currentGridConstraints) {
     return newColor
 }
 
-function selectNewColor(surrColors, currentGridConstraints) {
+function selectNewColor(surrColor, currentGridConstraints) {
     const probability = (Math.random()*100)
-    const colorIndex = (Math.floor(surrColors.length * Math.random()))
-    const colorSelect = surrColors[colorIndex]
     const colorChances = currentGridConstraints.colorChances
     let newColor
     if (probability <= parseFloat(colorChances.same)) {
-        newColor = colorSelect
+        newColor = surrColor
     } else if (probability <= parseFloat(colorChances.same) + parseFloat(colorChances.skew)) {
-        newColor = skewColor(colorSelect, currentGridConstraints)
+        newColor = skewColor(surrColor, currentGridConstraints)
     } else {
         newColor = randomRGB()
     }
@@ -116,7 +150,10 @@ function fillInitCells(currentGrid) {
         currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
         currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
         currentGrid.totalCellsFilled += 1
+        currentGrid.fillCenters.push(cellCoor)
+        currentGrid.fillableCells = currentGrid.fillableCells.concat(getSurrEmpties(currentGrid.grid.columns, cellCoor))
     }
+    return currentGrid
 }
 
 export function fillStart(currentGrid, gridId) {
@@ -126,7 +163,7 @@ export function fillStart(currentGrid, gridId) {
     }
 
     if (currentGrid.totalCellsFilled === 0) {
-        fillInitCells(currentGrid)
+        currentGrid = fillInitCells(currentGrid)
     }
 
     currentGrid.filling = true
@@ -134,21 +171,41 @@ export function fillStart(currentGrid, gridId) {
 }
 
 export function fillColor(currentGrid) {
-    let unSelected = true;
-    while(unSelected) {
-        const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
-        const cell = currentGrid.grid.columns[cellCoor.column][cellCoor.row]
-        if (cell.color === null) {
-            const surrColors = getSurroundingColors(currentGrid, cellCoor);
-            if (surrColors.length > 0) {
-                const newColor = selectNewColor(surrColors, currentGrid.formConstraints)
-                currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = newColor;
-                currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
-                currentGrid.totalCellsFilled += 1;
-                unSelected = false
-            }
-        } 
-    }
+    const gridCols = currentGrid.grid.columns
+    const fillableCoor = randomFromArray(currentGrid.fillableCells)
+    
+    // while (fillableCoor.length === 0) {
+    //     const fillCenter = selectFillCenter(currentGrid)
+    //     const surrEmpties = getSurrEmpties(currentGrid, fillCenter.coors)
+    //     if(surrEmpties.length === 0) {
+    //         fillCenters.splice(fillCenter.index, 1)
+    //     } else if (surrEmpties.length === 1) {
+    //         fillableCoor[0] = surrEmpties[0]
+    //         fillCenters.splice(fillCenter.index, 1)
+    //     } else {
+    //         fillableCoor[0] = randomFromArray(surrEmpties)
+    //     }
+    // }
+
+    // if(getSurrEmpties(currentGrid, fillableCoor[0]).length !== 0) {
+    //     fillCenters.push(fillableCoor[0])
+    // }
+    
+    
+    console.log('Fillable Coor')
+    console.log(fillableCoor)
+
+    const fillableCells = updateFillableCells(gridCols, currentGrid.fillableCells, fillableCoor)
+
+    const surrColorsCoors = getSurrColors(gridCols, fillableCoor)
+    const baseColorCoor = randomFromArray(surrColorsCoors)
+    const baseColor = currentGrid.grid.columns[baseColorCoor.column][baseColorCoor.row].color
+    const newColor = selectNewColor(baseColor, currentGrid.formConstraints)
+    currentGrid.grid.columns[fillableCoor.column][fillableCoor.row].color = newColor;
+    currentGrid.grid.columns[fillableCoor.column][fillableCoor.row].opacity = 1;
+    currentGrid.totalCellsFilled += 1;
+    // currentGrid.fillCenters = fillCenters
+    currentGrid.fillableCells = fillableCells
 
     return currentGrid
 }

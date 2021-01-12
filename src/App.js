@@ -16,11 +16,13 @@ class App extends Component {
     this.state = {
       emptyGridsRendered: false,
       small: {
-        totalColumns: 25, //25
-        totalRows: 12, //12
+        totalColumns: 10, //25
+        totalRows: 10, //12
         totalCells: null,
         totalCellsFilled: 0,
         filling: false,
+        fillCenters: [],
+        fillableCells: [],
         grid: null,
         formConstraints: {
           colorChances: {
@@ -47,6 +49,8 @@ class App extends Component {
         totalCells: null,
         totalCellsFilled: 0,
         filling: false,
+        fillCenters: [],
+        fillableCells: [],
         grid: null,
         formConstraints: {
           colorChances: {
@@ -73,6 +77,8 @@ class App extends Component {
         totalCells: null,
         totalCellsFilled: 0,
         filling: false,
+        fillCenters: [],
+        fillableCells: [],
         grid: null,
         formConstraints: {
           colorChances: {
@@ -99,7 +105,8 @@ class App extends Component {
         totalCells: null,
         totalCellsFilled: 0,
         filling: false,
-        intervalDelay: 250,
+        fillCenters: [],
+        fillableCells: [],
         grid: null,
         formConstraints: {
           colorChances: {
@@ -161,7 +168,6 @@ class App extends Component {
         this.setState({
           [gridId]: fillColor(this.state[gridId])
         })
-        console.log(`Total cells filled: ${this.state[gridId].totalCellsFilled}`)
       } else {
         if (this.state[gridId].filling) {
           this.setState({
@@ -189,35 +195,67 @@ class App extends Component {
   }
 
   updateColorChances = (gridId, valueId, value) => {
-    const newState = this.state;
-    newState[gridId].formConstraints.colorChances[valueId] = value;
-    this.setState({
-      newState
-    })
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        formConstraints: {
+          ...prevState[gridId].formConstraints,
+          colorChances: {
+            ...prevState[gridId].formConstraints.colorChances,
+            [valueId]: value
+          }
+        }
+      }
+    }))
   }
 
   updateSkewConstraints = (gridId, valueId, value) => {
-    const newState = this.state;
-    newState[gridId].formConstraints.skewConstraints[valueId] = Number(value);
-    this.setState({
-      newState
-    })
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        formConstraints: {
+          ...prevState[gridId].formConstraints,
+          skewConstraints: {
+            ...prevState[gridId].formConstraints.skewConstraints,
+            [valueId]: value
+          }
+        }
+      }
+    }))
   }
 
   updateNodeConstraints = (gridId, valueId, value) => {
-    const newState = this.state;
-    newState[gridId].formConstraints.nodeConstraints[valueId] = Number(value);
-    this.setState({
-      newState
-    })
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        formConstraints: {
+          ...prevState[gridId].formConstraints,
+          nodeConstraints: {
+            ...prevState[gridId].formConstraints.nodeConstraints,
+            [valueId]: value
+          }
+        }
+      }
+    }))
   }
 
   updateTimeSizeConstraints = (gridId, valueId, value) => {
-    const newState = this.state;
-    newState[gridId].formConstraints.timeSizeConstraints[valueId] = Number(value);
-    this.setState({
-      newState
-    })
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        formConstraints: {
+          ...prevState[gridId].formConstraints,
+          timeSizeConstraints: {
+            ...prevState[gridId].formConstraints.timeSizeConstraints,
+            [valueId]: value
+          }
+        }
+      }
+    }))
   }
   
   
