@@ -6,11 +6,11 @@ export default class GridStatus extends Component {
     render() {
         const gridId = this.props.match.params.gridId
         const cellsFilled = this.context[gridId].totalCellsFilled
-        console.log(`Cells filled: ${cellsFilled}`)
         const totalCells = this.context[gridId].totalCells
+        const fillPerc = Math.floor((cellsFilled/totalCells) * 100)
         return (
             <div className='grid-status'>
-                <h3>{`${cellsFilled} of ${totalCells} cells filled.`}</h3>
+                <h3>{`${fillPerc}% of cells filled.`}</h3>
             </div>
         )
     }

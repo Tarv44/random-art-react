@@ -7,7 +7,7 @@ export default class NodeConstraints extends Component {
     render() {
         const currentGrid = this.context[this.props.gridId]
         return (
-            <fieldset className='nodeConstraints'>
+            <fieldset className='node'>
                 <legend>Node Constraints</legend>
                 <fieldset>
                     <legend>Start</legend>
@@ -16,7 +16,7 @@ export default class NodeConstraints extends Component {
                         type='text' 
                         name='startNode' 
                         className='startNode'
-                        value={currentGrid.formConstraints.nodeConstraints.totalStart}
+                        value={currentGrid.formConstraints.node.totalStart}
                         onChange={e => this.context.updateNodeConstraints(this.props.gridId, 'totalStart', e.target.value)}
                     />
                 </fieldset>
@@ -27,7 +27,7 @@ export default class NodeConstraints extends Component {
                         type='text' 
                         name='newNode' 
                         className='newNode'
-                        value={currentGrid.formConstraints.nodeConstraints.chanceNew}
+                        value={currentGrid.formConstraints.node.chanceNew}
                         onChange={e => this.context.updateNodeConstraints(this.props.gridId, 'chanceNew', e.target.value)}
                     />
                 </fieldset>
@@ -38,7 +38,7 @@ export default class NodeConstraints extends Component {
                         type='text' 
                         name='sameNode' 
                         className='sameNode'
-                        value={currentGrid.formConstraints.nodeConstraints.chanceNewSame}
+                        value={currentGrid.formConstraints.node.chanceNewSame}
                         onChange={e => this.context.updateNodeConstraints(this.props.gridId, 'chanceNewSame', e.target.value)}
                     />
                 </fieldset>
@@ -49,7 +49,7 @@ export default class NodeConstraints extends Component {
                         type='text' 
                         name='randomNode' 
                         className='randomNode'
-                        value={currentGrid.formConstraints.nodeConstraints.chanceNewDiff}
+                        value={currentGrid.formConstraints.node.chanceNewDiff}
                         onChange={e => this.context.updateNodeConstraints(this.props.gridId, 'chanceNewDiff', e.target.value)}
                     />
                 </fieldset> */}

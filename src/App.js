@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Grid from './Grid/Grid';
 import generateEmptyGrid from './functions/generateEmptyGrid';
 import {randomRGB} from './functions/colorFunctions';
-import {fillColor, fillStart} from './functions/fillGrid';
+import {fillCellGroup, fillStart} from './functions/fillGrid';
 import Nav from './Nav/Nav';
 import {Route ,Redirect} from 'react-router-dom';
 import GridStatus from './GridStatus/GridStatus';
@@ -15,6 +15,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      counter: 0,
       large: {
         totalColumns: 250,
         totalRows: 120,
@@ -29,17 +30,18 @@ class App extends Component {
             same: 80,
             skew: 19
           },
-          skewConstraints: {
+          skew: {
             changeRange: 10
           },
-          nodeConstraints: {
+          node: {
             totalStart: 1,
             chanceNew: 0,
             chanceNewSame: 0,
             chanceNewDiff: 0
           },
-          timeSizeConstraints: {
-            intervalDelay: 500
+          timeSize: {
+            intervalDelay: 500,
+            fillGroupSize: 50
           }
         }
       },
@@ -57,17 +59,18 @@ class App extends Component {
             same: 80,
             skew: 19
           },
-          skewConstraints: {
+          skew: {
             changeRange: 10
           },
-          nodeConstraints: {
+          node: {
             totalStart: 1,
             chanceNew: 0,
             chanceNewSame: 0,
             chanceNewDiff: 0
           },
-          timeSizeConstraints: {
-            intervalDelay: 250
+          timeSize: {
+            intervalDelay: 250,
+            fillGroupSize: 10
           }
         }
       }
@@ -91,15 +94,16 @@ class App extends Component {
 
   handleFormStart = (event, gridId) => {
     event.preventDefault();
+    
+    this.setState({ [gridId]: fillStart(this.state[gridId], gridId) })
 
-    let newState = this.state[gridId]
-    newState.grid = generateEmptyGrid(this.state[gridId], gridId)
-    newState = fillStart(newState)
-    console.log(newState)
-    while (newState.totalCellsFilled < newState.totalCells) {
-      if (this.state[gridId].totalCellsFilled < this.state[gridId].totalCells && this.state[gridId].filling) {
-        newState = fillColor(newState);
-        console.log(newState.totalCellsFilled)
+    const intervalDelay = this.state[gridId].formConstraints.timeSize.intervalDelay;
+    const fillInterval = setInterval(() => {
+      if (this.state[gridId].fillableCells.length !== 0 && this.state[gridId].filling) {
+        const newState = fillCellGroup(this.state[gridId])
+        this.setState({
+          [gridId]: newState
+        })
       } else {
         if (this.state[gridId].filling) {
           this.setState({
@@ -109,35 +113,12 @@ class App extends Component {
             }
           })
         }
-        break
+        clearInterval(fillInterval);
+        console.log('interval cleared')
       }
-    }
-    this.setState({
-      [gridId]: newState
-    })
-
-    // this.setState({ [gridId]: fillStart(this.state[gridId],gridId)})
-
-    // const intervalDelay = this.state[gridId].formConstraints.timeSizeConstraints.intervalDelay;
-    // const fillInterval = setInterval(() => {
-    //   if (this.state[gridId].totalCellsFilled < this.state[gridId].totalCells && this.state[gridId].filling) {
-    //     this.setState({
-    //       [gridId]: fillColor(this.state[gridId])
-    //     })
-    //   } else {
-    //     if (this.state[gridId].filling) {
-    //       this.setState({
-    //         [gridId]: {
-    //           ...this.state[gridId],
-    //           filling: false
-    //         }
-    //       })
-    //     }
-    //     clearInterval(fillInterval);
-    //     console.log('interval cleared')
-    //   }
-    // },intervalDelay);
+    },intervalDelay);
   }
+
 
   handleFormStop = (event, gridId) => {
     event.preventDefault();
@@ -173,8 +154,8 @@ class App extends Component {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          skewConstraints: {
-            ...prevState[gridId].formConstraints.skewConstraints,
+          skew: {
+            ...prevState[gridId].formConstraints.skew,
             [valueId]: value
           }
         }
@@ -189,8 +170,8 @@ class App extends Component {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          nodeConstraints: {
-            ...prevState[gridId].formConstraints.nodeConstraints,
+          node: {
+            ...prevState[gridId].formConstraints.node,
             [valueId]: value
           }
         }
@@ -205,8 +186,8 @@ class App extends Component {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          timeSizeConstraints: {
-            ...prevState[gridId].formConstraints.timeSizeConstraints,
+          timeSize: {
+            ...prevState[gridId].formConstraints.timeSize,
             [valueId]: value
           }
         }
@@ -233,6 +214,7 @@ class App extends Component {
           <Nav />
           <main >
             {<Route exact path={'/grid/:gridId'} component={GridForm}/>}
+            {<Route exact path={'/grid/:gridId'} component={GridStatus}/>}
             {<Route exact path={'/grid/:gridId'} component={Grid}/>}
           </main>
         </div> 

@@ -16,7 +16,7 @@ export default class SkewConstraints extends Component {
                         type='text' 
                         name='skewRange' 
                         className='skewRange'
-                        value={currentGrid.formConstraints.skewConstraints.changeRange}
+                        value={currentGrid.formConstraints.skew.changeRange}
                         onChange={e => this.context.updateSkewConstraints(this.props.gridId, 'changeRange', e.target.value)}
                     />
                 </fieldset>

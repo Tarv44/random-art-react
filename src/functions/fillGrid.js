@@ -70,7 +70,7 @@ function updateFillableCells(gridCols, fillableCells, currentCoor) {
 }
 
 function skewColor(color, currentGridConstraints) {
-    const range = currentGridConstraints.skewConstraints.changeRange
+    const range = currentGridConstraints.skew.changeRange
     let red 
     let green
     let blue
@@ -135,7 +135,7 @@ function selectNewColor(surrColor, currentGridConstraints) {
 }
 
 function fillInitCells(currentGrid) {
-    const totalStartNodes = currentGrid.formConstraints.nodeConstraints.totalStart
+    const totalStartNodes = currentGrid.formConstraints.node.totalStart
     for (let i = 1; i <= totalStartNodes; i++) {
         const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
         currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
@@ -148,7 +148,7 @@ function fillInitCells(currentGrid) {
 }
 
 export function fillStart(currentGrid, gridId) {
-    if (currentGrid.totalCellsFilled === currentGrid.totalCells) {
+    if (currentGrid.totalCellsFilled === currentGrid.totalCells || currentGrid.grid === null) {
         currentGrid.grid = generateEmptyGrid(currentGrid, gridId)
         currentGrid.totalCellsFilled = 0
     }
@@ -161,26 +161,9 @@ export function fillStart(currentGrid, gridId) {
     return currentGrid
 }
 
-export function fillColor(currentGrid) {
+function fillColor(currentGrid) {
     const gridCols = currentGrid.grid.columns
     const fillableCoor = randomFromArray(currentGrid.fillableCells)
-    
-    // while (fillableCoor.length === 0) {
-    //     const fillCenter = selectFillCenter(currentGrid)
-    //     const surrEmpties = getSurrEmpties(currentGrid, fillCenter.coors)
-    //     if(surrEmpties.length === 0) {
-    //         fillCenters.splice(fillCenter.index, 1)
-    //     } else if (surrEmpties.length === 1) {
-    //         fillableCoor[0] = surrEmpties[0]
-    //         fillCenters.splice(fillCenter.index, 1)
-    //     } else {
-    //         fillableCoor[0] = randomFromArray(surrEmpties)
-    //     }
-    // }
-
-    // if(getSurrEmpties(currentGrid, fillableCoor[0]).length !== 0) {
-    //     fillCenters.push(fillableCoor[0])
-    // }
     
 
     const fillableCells = updateFillableCells(gridCols, currentGrid.fillableCells, fillableCoor)
@@ -196,4 +179,21 @@ export function fillColor(currentGrid) {
     currentGrid.fillableCells = fillableCells
 
     return currentGrid
+}
+
+export function fillCellGroup(currentGrid) {
+    const groupSizePerc = currentGrid.formConstraints.timeSize.fillGroupSize / 100
+    const groupSize = Math.floor(currentGrid.totalCells * groupSizePerc)
+    const cellsLeft = currentGrid.totalCells - currentGrid.totalCellsFilled
+    let newGrid = currentGrid
+    if (cellsLeft > groupSize) {
+        for (let i = 0; i < groupSize; i++) {
+            newGrid = fillColor(newGrid)
+        }
+    } else {
+        for (let i = 0; i < cellsLeft; i++) {
+            newGrid = fillColor(newGrid)
+        }
+    }
+    return newGrid
 }
