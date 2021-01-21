@@ -3,24 +3,14 @@
     /* transition: 1s ease-in opacity; */
 } 
 
-.cell.small {
-    height: 50px;
-    width: 50px;
-}
-
-.cell.medium {
-    height: 30px;
-    width: 30px;
-}
-
 .cell.large {
-    height: 15px;
-    width: 15px;
+    height: 5px;
+    width: 5px;
 }
 
 .cell.extraLarge {
-    height: 5px;
-    width: 5px;
+    height: 1px;
+    width: 1px;
 }
 
 @keyframes fadeIn {

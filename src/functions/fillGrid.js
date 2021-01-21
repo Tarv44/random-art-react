@@ -20,14 +20,11 @@ function selectRandomCell(totalColumns, totalRows) {
 function selectFillCenter(currentGrid) {
     const index = randomFromRange(currentGrid.fillCenters.length)
     const coors = currentGrid.fillCenters[index]
-    console.log('Fill Center:')
-    console.log({coors, index})
     return {coors, index}
     
 }
 
 function allSurrCoors(gridCols, cellCoor) {
-    console.log(gridCols)
     const columns = [cellCoor.column-1, cellCoor.column, cellCoor.column+1]
         .filter(num => num > -1 && num < gridCols.length)
     const rows = [cellCoor.row-1, cellCoor.row, cellCoor.row+1]
@@ -43,8 +40,6 @@ function allSurrCoors(gridCols, cellCoor) {
 
         }
     }
-    console.log('All Surrounding Coors')
-    console.log(coors)
     return coors
 }
 
@@ -52,8 +47,6 @@ function getSurrEmpties(gridCols, cellCoor) {
     const surrCoors = allSurrCoors(gridCols, cellCoor)
     const surrEmpties = surrCoors.filter(coor => 
         gridCols[coor.column][coor.row].color === null)
-    console.log('Surrounding Empties:')
-    console.log(surrEmpties)
     return surrEmpties
 }
 
@@ -61,8 +54,6 @@ function getSurrColors(gridCols, cellCoor) {
     const coors = allSurrCoors(gridCols, cellCoor);
     const surrColors = coors.filter(coor =>
         gridCols[coor.column][coor.row].color !== null)
-    console.log('Surrounding Colors:')
-    console.log(surrColors)
     return surrColors
 }
 
@@ -191,9 +182,6 @@ export function fillColor(currentGrid) {
     //     fillCenters.push(fillableCoor[0])
     // }
     
-    
-    console.log('Fillable Coor')
-    console.log(fillableCoor)
 
     const fillableCells = updateFillableCells(gridCols, currentGrid.fillableCells, fillableCoor)
 
