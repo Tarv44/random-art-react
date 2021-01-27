@@ -24,6 +24,17 @@ function selectFillCenter(currentGrid) {
     
 }
 
+export function rangedRandomRGB(gridConst) {
+    const colorRanges = gridConst.skew
+    const colorObject = {}
+    colorObject.red = (randomFromRange(colorRanges.redUpper - colorRanges.redLow + 1) + colorRanges.redLow)
+    colorObject.green = (randomFromRange(colorRanges.greenUpper - colorRanges.greenLow + 1) + colorRanges.greenLow)
+    colorObject.blue = (randomFromRange(colorRanges.blueUpper - colorRanges.blueLow + 1) + colorRanges.blueLow)
+    const rgb = `rgba(${colorObject.red}, ${colorObject.green}, ${colorObject.blue}, 1)`
+    colorObject.rgb = rgb
+    return colorObject
+}
+
 function allSurrCoors(gridCols, cellCoor) {
     const columns = [cellCoor.column-1, cellCoor.column, cellCoor.column+1]
         .filter(num => num > -1 && num < gridCols.length)
@@ -74,43 +85,43 @@ function skewColor(color, currentGridConstraints) {
     let red 
     let green
     let blue
-    const redChange = (Math.floor(Math.random() * range) + 1)
-    const greenChange = (Math.floor(Math.random() * range) + 1)
-    const blueChange = (Math.floor(Math.random() * range) + 1)
+    const redChange = (randomFromRange(range) + 1)
+    const greenChange = (randomFromRange(range) + 1)
+    const blueChange = (randomFromRange(range) + 1)
 
     if (Math.random() < .5) {
         red = color.red + redChange
-        if (red > 255) {
-            red = 255
+        if (red > currentGridConstraints.skew.redUpper) {
+            red = currentGridConstraints.skew.redUpper
         }
     } else {
         red = color.red - redChange
-        if (red < 0) {
-            red = 0
+        if (red < currentGridConstraints.skew.redLow) {
+            red = currentGridConstraints.skew.redLow
         }
     }
 
     if (Math.random() < .5) {
         green = color.green + greenChange
-        if (green > 255) {
-            green = 255
+        if (green > currentGridConstraints.skew.greenUpper) {
+            green = currentGridConstraints.skew.greenUpper
         }
     } else {
         green = color.green - greenChange
-        if (green < 0) {
-            green = 0
+        if (green < currentGridConstraints.skew.greenLow) {
+            green = currentGridConstraints.skew.greenLow
         }
     }
 
     if (Math.random() < .5) {
         blue = color.blue + blueChange
-        if (blue > 255) {
-            blue = 255
+        if (blue > currentGridConstraints.skew.blueUpper) {
+            blue = currentGridConstraints.skew.blueUpper
         }
     } else {
         blue = color.blue - blueChange
-        if (blue < 0) {
-            blue = 0
+        if (blue < currentGridConstraints.skew.blueLow) {
+            blue = currentGridConstraints.skew.blueLow
         }
     }
 
@@ -129,7 +140,7 @@ function selectNewColor(surrColor, currentGridConstraints) {
     } else if (probability <= parseFloat(colorChances.same) + parseFloat(colorChances.skew)) {
         newColor = skewColor(surrColor, currentGridConstraints)
     } else {
-        newColor = randomRGB()
+        newColor = rangedRandomRGB(currentGridConstraints)
     }
     return newColor
 }
@@ -138,10 +149,9 @@ function fillInitCells(currentGrid) {
     const totalStartNodes = currentGrid.formConstraints.node.totalStart
     for (let i = 1; i <= totalStartNodes; i++) {
         const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
-        currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
+        currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = rangedRandomRGB(currentGrid.formConstraints);
         currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
         currentGrid.totalCellsFilled += 1
-        currentGrid.fillCenters.push(cellCoor)
         currentGrid.fillableCells = currentGrid.fillableCells.concat(getSurrEmpties(currentGrid.grid.columns, cellCoor))
     }
     return currentGrid
@@ -195,5 +205,6 @@ export function fillCellGroup(currentGrid) {
             newGrid = fillColor(newGrid)
         }
     }
+    newGrid.filledThisRound = newGrid.filledThisRound + (groupSizePerc * 100)
     return newGrid
 }

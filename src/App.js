@@ -21,8 +21,8 @@ class App extends Component {
         totalRows: 120,
         totalCells: null,
         totalCellsFilled: 0,
+        filledThisRound: 0,
         filling: false,
-        fillCenters: [],
         fillableCells: [],
         grid: null,
         formConstraints: {
@@ -31,7 +31,13 @@ class App extends Component {
             skew: 19
           },
           skew: {
-            changeRange: 10
+            changeRange: 10,
+            redLow: 0,
+            redUpper: 255,
+            blueLow: 0,
+            blueUpper: 255,
+            greenLow: 0,
+            greenUpper: 255
           },
           node: {
             totalStart: 1,
@@ -41,7 +47,8 @@ class App extends Component {
           },
           timeSize: {
             intervalDelay: 500,
-            fillGroupSize: 50
+            fillGroupSize: 50,
+            stopPoint: 10
           }
         }
       },
@@ -50,8 +57,8 @@ class App extends Component {
         totalRows: 600,
         totalCells: null,
         totalCellsFilled: 0,
+        filledThisRound: 0,
         filling: false,
-        fillCenters: [],
         fillableCells: [],
         grid: null,
         formConstraints: {
@@ -60,7 +67,13 @@ class App extends Component {
             skew: 19
           },
           skew: {
-            changeRange: 10
+            changeRange: 10,
+            redLow: 0,
+            redUpper: 255,
+            blueLow: 0,
+            blueUpper: 255,
+            greenLow: 0,
+            greenUpper: 255
           },
           node: {
             totalStart: 1,
@@ -70,7 +83,8 @@ class App extends Component {
           },
           timeSize: {
             intervalDelay: 250,
-            fillGroupSize: 10
+            fillGroupSize: 10,
+            stopPoint: 10
           }
         }
       }
@@ -94,25 +108,34 @@ class App extends Component {
 
   handleFormStart = (event, gridId) => {
     event.preventDefault();
+
+    this.setState({
+      [gridId]: {
+        ...this.state[gridId],
+        filling: true
+      }
+    })
     
     this.setState({ [gridId]: fillStart(this.state[gridId], gridId) })
-
+    
     const intervalDelay = this.state[gridId].formConstraints.timeSize.intervalDelay;
     const fillInterval = setInterval(() => {
-      if (this.state[gridId].fillableCells.length !== 0 && this.state[gridId].filling) {
-        const newState = fillCellGroup(this.state[gridId])
+      const grid = this.state[gridId]
+      if (grid.fillableCells.length !== 0 
+        && grid.filledThisRound < grid.formConstraints.timeSize.stopPoint) {
+        const newState = fillCellGroup(grid)
         this.setState({
           [gridId]: newState
         })
       } else {
-        if (this.state[gridId].filling) {
-          this.setState({
-            [gridId]: {
-              ...this.state[gridId],
-              filling: false
-            }
-          })
-        }
+        this.setState({
+          ...this.state,
+          [gridId]: {
+            ...this.state[gridId],
+            filling: false,
+            filledThisRound: 0
+          }
+        })
         clearInterval(fillInterval);
         console.log('interval cleared')
       }
@@ -120,18 +143,19 @@ class App extends Component {
   }
 
 
-  handleFormStop = (event, gridId) => {
-    event.preventDefault();
+  // handleFormStop = (event, gridId) => {
+  //   event.preventDefault();
 
-    this.setState({
-      [gridId]: {
-        ...this.state[gridId],
-        filling: false
-      }
-    })
-  }
+  //   this.setState({
+  //     [gridId]: {
+  //       ...this.state[gridId],
+  //       filling: false
+  //     }
+  //   })
+  // }
 
   updateColorChances = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
@@ -140,7 +164,7 @@ class App extends Component {
           ...prevState[gridId].formConstraints,
           colorChances: {
             ...prevState[gridId].formConstraints.colorChances,
-            [valueId]: value
+            [valueId]: numValue
           }
         }
       }
@@ -148,6 +172,7 @@ class App extends Component {
   }
 
   updateSkewConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
@@ -156,7 +181,7 @@ class App extends Component {
           ...prevState[gridId].formConstraints,
           skew: {
             ...prevState[gridId].formConstraints.skew,
-            [valueId]: value
+            [valueId]: numValue
           }
         }
       }
@@ -164,6 +189,7 @@ class App extends Component {
   }
 
   updateNodeConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
@@ -172,7 +198,7 @@ class App extends Component {
           ...prevState[gridId].formConstraints,
           node: {
             ...prevState[gridId].formConstraints.node,
-            [valueId]: value
+            [valueId]: numValue
           }
         }
       }
@@ -180,6 +206,7 @@ class App extends Component {
   }
 
   updateTimeSizeConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
@@ -188,7 +215,7 @@ class App extends Component {
           ...prevState[gridId].formConstraints,
           timeSize: {
             ...prevState[gridId].formConstraints.timeSize,
-            [valueId]: value
+            [valueId]: numValue
           }
         }
       }

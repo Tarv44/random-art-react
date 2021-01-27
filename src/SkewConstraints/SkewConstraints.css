@@ -1,0 +1,8 @@
+.skewConst {
+    display: flex;
+    flex-direction: row;
+}
+
+.redLow {
+    margin-right: 8px;
+}

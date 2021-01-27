@@ -16,7 +16,7 @@ export default class TimeSizeConstraints extends Component {
                         type='text'
                         name='timeInterval'
                         className='timeInterval'
-                        value={currentGrid.formConstraints.timeSize.intervalDelay}
+                        placeholder={currentGrid.formConstraints.timeSize.intervalDelay}
                         onChange={e => this.context.updateTimeSizeConstraints(this.props.gridId, 'intervalDelay', e.target.value)}
                     />
                 </fieldset>
@@ -27,8 +27,19 @@ export default class TimeSizeConstraints extends Component {
                         type='text'
                         name='groupSize'
                         className='groupSize'
-                        value={currentGrid.formConstraints.timeSize.fillGroupSize}
+                        placeholder={currentGrid.formConstraints.timeSize.fillGroupSize}
                         onChange={e => this.context.updateTimeSizeConstraints(this.props.gridId, 'fillGroupSize', e.target.value)}
+                    />
+                </fieldset>
+                <fieldset>
+                    <legend>Stop Point</legend>
+                    <label htmlFor='stopPoint'>Stop filling once portion reached:</label>
+                    <input 
+                        type='text'
+                        name='stopPoint'
+                        className='stopPoint'
+                        placeholder={currentGrid.formConstraints.timeSize.stopPoint}
+                        onChange={e => this.context.updateTimeSizeConstraints(this.props.gridId, 'stopPoint', e.target.value)}
                     />
                 </fieldset>
             </fieldset>

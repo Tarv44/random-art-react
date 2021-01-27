@@ -16,7 +16,7 @@ export default class NodeConstraints extends Component {
                         type='text' 
                         name='startNode' 
                         className='startNode'
-                        value={currentGrid.formConstraints.node.totalStart}
+                        placeholder={currentGrid.formConstraints.node.totalStart}
                         onChange={e => this.context.updateNodeConstraints(this.props.gridId, 'totalStart', e.target.value)}
                     />
                 </fieldset>
