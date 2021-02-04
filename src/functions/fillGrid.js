@@ -206,5 +206,6 @@ export function fillCellGroup(currentGrid) {
         }
     }
     newGrid.filledThisRound = newGrid.filledThisRound + (groupSizePerc * 100)
+    newGrid.firstPortionFilled = true;
     return newGrid
 }

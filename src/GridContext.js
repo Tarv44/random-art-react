@@ -10,7 +10,9 @@ const GridContext = React.createContext({
     updateColorChances: () => {},
     updateSkewConstraints: () => {},
     updateNodeConstraints: () => {},
-    updateTimeSizeConstraints: () => {}
+    updateTimeSizeConstraints: () => {},
+    updateGridRows: () => {},
+    updateGridCols: () => {}
 })
 
 export default GridContext;

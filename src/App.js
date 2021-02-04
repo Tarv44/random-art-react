@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
 import Grid from './Grid/Grid';
-import generateEmptyGrid from './functions/generateEmptyGrid';
-import {randomRGB} from './functions/colorFunctions';
 import {fillCellGroup, fillStart} from './functions/fillGrid';
 import Nav from './Nav/Nav';
-import {Route ,Redirect} from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import GridStatus from './GridStatus/GridStatus';
 import GridContext from './GridContext';
 import GridForm from './GridForm/GridForm'
@@ -17,6 +15,7 @@ class App extends Component {
     this.state = {
       counter: 0,
       large: {
+        firstPortionFilled: false,
         totalColumns: 250,
         totalRows: 120,
         totalCells: null,
@@ -53,6 +52,7 @@ class App extends Component {
         }
       },
       extraLarge: {
+        firstPortionFilled: false,
         totalColumns: 1250,
         totalRows: 600,
         totalCells: null,
@@ -133,7 +133,7 @@ class App extends Component {
           [gridId]: {
             ...this.state[gridId],
             filling: false,
-            filledThisRound: 0
+            filledThisRound: 0, 
           }
         })
         clearInterval(fillInterval);
@@ -221,6 +221,30 @@ class App extends Component {
       }
     }))
   }
+
+  updateGridRows = (gridId, value) => {
+    const totalRows = value ? Number(value) : 0
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        totalRows,
+        totalCells: totalRows * prevState[gridId].totalColumns
+      }
+    }))
+  }
+
+  updateGridCols = (gridId, value) => {
+    const totalColumns = value ? Number(value) : 0
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        totalColumns,
+        totalCells: totalColumns * prevState[gridId].totalRows
+      }
+    }))
+  }
   
   
   render() {
@@ -232,6 +256,8 @@ class App extends Component {
       updateSkewConstraints: this.updateSkewConstraints,
       updateNodeConstraints: this.updateNodeConstraints,
       updateTimeSizeConstraints: this.updateTimeSizeConstraints,
+      updateGridRows: this.updateGridRows,
+      updateGridCols: this.updateGridCols,
       formStop: this.handleFormStop
     }
 

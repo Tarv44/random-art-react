@@ -8,7 +8,7 @@ class Grid extends Component {
 
     render() {
         const gridId = this.props.match.params.gridId
-        const columns = this.context[gridId].grid !== null 
+        const columns = this.context[gridId].firstPortionFilled
             ? this.context[gridId].grid.columns.map((column, i) => {
                 return <Column columnData={column} key={i}/>
             })

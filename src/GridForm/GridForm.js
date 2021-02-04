@@ -18,7 +18,6 @@ export default class GridForm extends Component {
                 <NodeConstraints gridId={this.props.match.params.gridId}/>
                 <TimeSizeConstraints gridId={this.props.match.params.gridId}/>
                 <button type='submit'>Start</button>
-                <button onClick={e => this.context.formStop(e, this.props.match.params.gridId)}>Stop</button>
             </form>
         )
     }
