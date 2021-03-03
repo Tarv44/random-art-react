@@ -5,9 +5,11 @@ import Nav from './Nav/Nav';
 import { Route } from 'react-router-dom';
 import GridStatus from './GridStatus/GridStatus';
 import GridContext from './GridContext';
-import GridForm from './GridForm/GridForm'
+import GridForm from './GridForm/GridForm';
+import ReactDOM from 'react-dom'
 
 import './App.css';
+import html2canvas from 'html2canvas';
 
 class App extends Component {
   constructor(props) {
@@ -15,6 +17,7 @@ class App extends Component {
     this.state = {
       counter: 0,
       large: {
+        canvas: null,
         firstPortionFilled: false,
         totalColumns: 250,
         totalRows: 120,
@@ -23,6 +26,7 @@ class App extends Component {
         filledThisRound: 0,
         filling: false,
         fillableCells: [],
+        showForm: true,
         grid: null,
         formConstraints: {
           colorChances: {
@@ -45,13 +49,12 @@ class App extends Component {
             chanceNewDiff: 0
           },
           timeSize: {
-            intervalDelay: 500,
-            fillGroupSize: 50,
-            stopPoint: 10
+            fillGroupSize: 50
           }
         }
       },
       extraLarge: {
+        canvas: null,
         firstPortionFilled: false,
         totalColumns: 1250,
         totalRows: 600,
@@ -60,6 +63,7 @@ class App extends Component {
         filledThisRound: 0,
         filling: false,
         fillableCells: [],
+        showForm: true,
         grid: null,
         formConstraints: {
           colorChances: {
@@ -82,9 +86,7 @@ class App extends Component {
             chanceNewDiff: 0
           },
           timeSize: {
-            intervalDelay: 250,
-            fillGroupSize: 10,
-            stopPoint: 10
+            fillGroupSize: 10
           }
         }
       }
@@ -103,56 +105,30 @@ class App extends Component {
         totalCells: this.state.extraLarge.totalRows * this.state.extraLarge.totalColumns
       }
 
-    }))   
+    }))
   }
 
-  handleFormStart = (event, gridId) => {
-    event.preventDefault();
-
-    this.setState({
-      [gridId]: {
-        ...this.state[gridId],
-        filling: true
-      }
-    })
+  handleFormStart = (e, gridId) => {
+    e.preventDefault();
     
     this.setState({ [gridId]: fillStart(this.state[gridId], gridId) })
-    
-    const intervalDelay = this.state[gridId].formConstraints.timeSize.intervalDelay;
-    const fillInterval = setInterval(() => {
-      const grid = this.state[gridId]
-      if (grid.fillableCells.length !== 0 
-        && grid.filledThisRound < grid.formConstraints.timeSize.stopPoint) {
-        const newState = fillCellGroup(grid)
-        this.setState({
-          [gridId]: newState
-        })
-      } else {
-        this.setState({
-          ...this.state,
-          [gridId]: {
-            ...this.state[gridId],
-            filling: false,
-            filledThisRound: 0, 
-          }
-        })
-        clearInterval(fillInterval);
-        console.log('interval cleared')
-      }
-    },intervalDelay);
+
+    const grid = this.state[gridId]
+
+    const newState = fillCellGroup(grid)
+    this.setState({
+      [gridId]: newState
+    })
   }
 
+  handleForm = (e, gridId) => {
+    e.preventDefault();
 
-  // handleFormStop = (event, gridId) => {
-  //   event.preventDefault();
-
-  //   this.setState({
-  //     [gridId]: {
-  //       ...this.state[gridId],
-  //       filling: false
-  //     }
-  //   })
-  // }
+    this.setState({ [gridId]: {
+      ...this.state[gridId],
+      showForm: true
+    }})
+  }
 
   updateColorChances = (gridId, valueId, value) => {
     const numValue = value ? Number(value) : 0
@@ -258,7 +234,12 @@ class App extends Component {
       updateTimeSizeConstraints: this.updateTimeSizeConstraints,
       updateGridRows: this.updateGridRows,
       updateGridCols: this.updateGridCols,
+      showForm: this.handleForm,
       formStop: this.handleFormStop
+    }
+
+    if(this.state.large.firstPortionFilled) {
+      
     }
 
     return (

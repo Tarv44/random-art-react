@@ -17,3 +17,7 @@ form > * {
 input[type=text] {
     width: 40px;
 }
+
+.adjust-form {
+    margin-top: 20px;
+}

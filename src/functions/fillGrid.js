@@ -168,6 +168,7 @@ export function fillStart(currentGrid, gridId) {
     }
 
     currentGrid.filling = true
+    currentGrid.showForm = false
     return currentGrid
 }
 
@@ -205,7 +206,7 @@ export function fillCellGroup(currentGrid) {
             newGrid = fillColor(newGrid)
         }
     }
-    newGrid.filledThisRound = newGrid.filledThisRound + (groupSizePerc * 100)
-    newGrid.firstPortionFilled = true;
+    newGrid.filling = false
+    
     return newGrid
 }
