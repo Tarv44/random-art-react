@@ -23,8 +23,6 @@ export default class GridForm extends Component {
             </form>
         ) : <button className="adjust-form" onClick={e => this.context.showForm(e, gridId)} >Adjust Form</button>
 
-        console.log(this.context[gridId].showForm)
-
         return  formDisplay
     }
 }

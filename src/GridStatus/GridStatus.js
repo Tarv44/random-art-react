@@ -9,12 +9,9 @@ export default class GridStatus extends Component {
         const cellsFilled = this.context[gridId].totalCellsFilled
         const totalCells = this.context[gridId].totalCells
         const fillPerc = Math.floor((cellsFilled/totalCells) * 100)
-        const fillingStatus = this.context[gridId].filling ? 'Filling...' : 'Filling stopped.'
-        const fillStatClass = this.context[gridId].filling ? 'filling' : 'not-filling'
         return (
             <div className='grid-status'>
                 <h3>{`${fillPerc}% of cells filled.`}</h3>
-                <h4 className={fillStatClass}>{fillingStatus}</h4>
             </div>
         )
     }

@@ -6,10 +6,8 @@ import { Route } from 'react-router-dom';
 import GridStatus from './GridStatus/GridStatus';
 import GridContext from './GridContext';
 import GridForm from './GridForm/GridForm';
-import ReactDOM from 'react-dom'
 
 import './App.css';
-import html2canvas from 'html2canvas';
 
 class App extends Component {
   constructor(props) {
@@ -17,13 +15,10 @@ class App extends Component {
     this.state = {
       counter: 0,
       large: {
-        canvas: null,
-        firstPortionFilled: false,
         totalColumns: 250,
         totalRows: 120,
         totalCells: null,
         totalCellsFilled: 0,
-        filledThisRound: 0,
         filling: false,
         fillableCells: [],
         showForm: true,
@@ -54,13 +49,10 @@ class App extends Component {
         }
       },
       extraLarge: {
-        canvas: null,
-        firstPortionFilled: false,
         totalColumns: 1250,
         totalRows: 600,
         totalCells: null,
         totalCellsFilled: 0,
-        filledThisRound: 0,
         filling: false,
         fillableCells: [],
         showForm: true,
@@ -94,8 +86,8 @@ class App extends Component {
   }
 
   componentDidMount() {
+    //Calculates and sets state for total cells based on total rows and total columns
     this.setState(prevState => ({
-      // emptyGridsRendered: true,
       large: {
         ...prevState.large,
         totalCells: this.state.large.totalRows * this.state.large.totalColumns
@@ -108,19 +100,30 @@ class App extends Component {
     }))
   }
 
+  //Start or restart filling grid.
   handleFormStart = (e, gridId) => {
     e.preventDefault();
-    
-    this.setState({ [gridId]: fillStart(this.state[gridId], gridId) })
 
-    const grid = this.state[gridId]
-
-    const newState = fillCellGroup(grid)
     this.setState({
-      [gridId]: newState
+      [gridId]: {
+        ...this.state[gridId],
+        filling: true
+      }
+    })
+    
+    //Handle start by filling initial nodes, or restart
+    let newGrid = fillStart(this.state[gridId], gridId)
+
+    //Fill amount of cells specified by fillGroupSize 
+    newGrid = fillCellGroup(newGrid)
+
+    //Set state with new grid of filled cells
+    this.setState({
+      [gridId]: newGrid
     })
   }
 
+  //Toggles displaying form
   handleForm = (e, gridId) => {
     e.preventDefault();
 
@@ -130,6 +133,8 @@ class App extends Component {
     }})
   }
 
+
+  //Updates any form values in "Color fill chances section"
   updateColorChances = (gridId, valueId, value) => {
     const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -147,6 +152,7 @@ class App extends Component {
     }))
   }
 
+  //Updates any form values in "Skew Constraints section"
   updateSkewConstraints = (gridId, valueId, value) => {
     const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -164,6 +170,7 @@ class App extends Component {
     }))
   }
 
+  //Updates any form values in "Node Constraints section"
   updateNodeConstraints = (gridId, valueId, value) => {
     const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -181,6 +188,7 @@ class App extends Component {
     }))
   }
 
+  //Updates any form values in "Time/Size Constraints section" (excluding total rows and total cells)
   updateTimeSizeConstraints = (gridId, valueId, value) => {
     const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -198,6 +206,7 @@ class App extends Component {
     }))
   }
 
+  //Updates total rows
   updateGridRows = (gridId, value) => {
     const totalRows = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -210,6 +219,7 @@ class App extends Component {
     }))
   }
 
+  //Updates total cells
   updateGridCols = (gridId, value) => {
     const totalColumns = value ? Number(value) : 0
     this.setState(prevState => ({
@@ -234,12 +244,7 @@ class App extends Component {
       updateTimeSizeConstraints: this.updateTimeSizeConstraints,
       updateGridRows: this.updateGridRows,
       updateGridCols: this.updateGridCols,
-      showForm: this.handleForm,
-      formStop: this.handleFormStop
-    }
-
-    if(this.state.large.firstPortionFilled) {
-      
+      showForm: this.handleForm
     }
 
     return (

@@ -1,7 +1,10 @@
-import React from 'react';
-
-function randomFromRange(range) {
+export function randomFromRange(range) {
     return Math.floor(Math.random() * range)
+}
+
+export function randomFromArray(array) {
+    const i = randomFromRange(array.length)
+    return array[i]
 }
 
 export function randomRGB() {
