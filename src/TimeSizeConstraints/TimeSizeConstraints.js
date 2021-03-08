@@ -7,17 +7,39 @@ export default class TimeSizeConstraints extends Component {
     render() {
         const currentGrid = this.context[this.props.gridId]
         return (
-            <fieldset className='timeSizeConstraints'>
+            <fieldset className='timeSize'>
                 <legend>Time/Size Constraints</legend>
                 <fieldset>
-                    <legend>Time Interval</legend>
-                    <label htmlFor='timeInterval'>Interval between each color fill (milliseconds):</label>
+                    <legend>Group Fill Percentage</legend>
+                    <label htmlFor='timeInterval'>Amount of grid filled at each interval (percent):</label>
                     <input 
                         type='text'
-                        name='timeInterval'
-                        className='timeInterval'
-                        value={currentGrid.formConstraints.timeSizeConstraints.intervalDelay}
-                        onChange={e => this.context.updateTimeSizeConstraints(this.props.gridId, 'intervalDelay', e.target.value)}
+                        name='groupSize'
+                        className='groupSize'
+                        placeholder={currentGrid.formConstraints.timeSize.fillGroupSize}
+                        onChange={e => this.context.updateTimeSizeConstraints(this.props.gridId, 'fillGroupSize', e.target.value)}
+                    />
+                </fieldset>
+                <fieldset>
+                    <legend>Columns</legend>
+                    <label htmlFor='gridCols'>Total Grid Columns:</label>
+                    <input 
+                        type='text'
+                        name='gridCols'
+                        className='gridCols'
+                        placeholder={currentGrid.totalColumns}
+                        onChange={e => this.context.updateGridCols(this.props.gridId, e.target.value)}
+                    />
+                </fieldset>
+                <fieldset>
+                    <legend>Rows</legend>
+                    <label htmlFor='gridRows'>Total Grid Rows:</label>
+                    <input 
+                        type='text'
+                        name='gridRows'
+                        className='gridRows'
+                        placeholder={currentGrid.totalRows}
+                        onChange={e => this.context.updateGridRows(this.props.gridId, e.target.value)}
                     />
                 </fieldset>
             </fieldset>

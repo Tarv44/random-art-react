@@ -18,7 +18,7 @@ export default class colorFillChances extends Component {
                         type='text' 
                         name='sameColor' 
                         className='sameColor'
-                        value={currentGrid.formConstraints.colorChances.same}
+                        placeholder={currentGrid.formConstraints.colorChances.same}
                         onChange={e => this.context.updateColorChances(this.props.gridId, 'same', e.target.value)}
                     />
                 </fieldset>
@@ -29,19 +29,13 @@ export default class colorFillChances extends Component {
                         type='text' 
                         name='skewedColor' 
                         className='skewedColor'
-                        value={currentGrid.formConstraints.colorChances.skew}
+                        placeholder={currentGrid.formConstraints.colorChances.skew}
                         onChange={e => this.context.updateColorChances(this.props.gridId, 'skew', e.target.value)}
                     />
                 </fieldset>
                 <fieldset>
                     <legend>Random</legend>
-                    <label htmlFor='randomColor'>Chance of random color (automatic):</label>
-                    <input 
-                        type='text' 
-                        name='randomColor' 
-                        className='randomColor'
-                        value={newColorChance}
-                    /> 
+                    <label htmlFor='randomColor'>Chance of random color (automatic): {newColorChance}</label>
                 </fieldset>              
             </fieldset>
         )

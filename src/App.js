@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import Grid from './Grid/Grid';
-import generateEmptyGrid from './functions/generateEmptyGrid';
-import {randomRGB} from './functions/colorFunctions';
-import {fillColor, fillStart} from './functions/fillGrid';
+import {fillCellGroup, fillStart} from './functions/fillGrid';
 import Nav from './Nav/Nav';
-import {Route ,Redirect} from 'react-router-dom';
+import { Route } from 'react-router-dom';
+import GridStatus from './GridStatus/GridStatus';
 import GridContext from './GridContext';
-import GridForm from './GridForm/GridForm'
+import GridForm from './GridForm/GridForm';
 
 import './App.css';
 
@@ -14,116 +13,72 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      emptyGridsRendered: false,
-      small: {
-        totalColumns: 10, //25
-        totalRows: 10, //12
-        totalCells: null,
-        totalCellsFilled: 0,
-        filling: false,
-        fillCenters: [],
-        fillableCells: [],
-        grid: null,
-        formConstraints: {
-          colorChances: {
-            same: 80,
-            skew: 19
-          },
-          skewConstraints: {
-            changeRange: 10
-          },
-          nodeConstraints: {
-            totalStart: 1,
-            chanceNew: 0,
-            chanceNewSame: 0,
-            chanceNewDiff: 0
-          },
-          timeSizeConstraints: {
-            intervalDelay: 1000
-          }
-        }
-      },
-      medium: {
-        totalColumns: 42,
-        totalRows: 20,
-        totalCells: null,
-        totalCellsFilled: 0,
-        filling: false,
-        fillCenters: [],
-        fillableCells: [],
-        grid: null,
-        formConstraints: {
-          colorChances: {
-            same: 80,
-            skew: 19
-          },
-          skewConstraints: {
-            changeRange: 10
-          },
-          nodeConstraints: {
-            totalStart: 1,
-            chanceNew: 0,
-            chanceNewSame: 0,
-            chanceNewDiff: 0
-          },
-          timeSizeConstraints: {
-            intervalDelay: 750
-          }
-        }
-      },
+      counter: 0,
       large: {
-        totalColumns: 84,
-        totalRows: 40,
-        totalCells: null,
-        totalCellsFilled: 0,
-        filling: false,
-        fillCenters: [],
-        fillableCells: [],
-        grid: null,
-        formConstraints: {
-          colorChances: {
-            same: 80,
-            skew: 19
-          },
-          skewConstraints: {
-            changeRange: 10
-          },
-          nodeConstraints: {
-            totalStart: 1,
-            chanceNew: 0,
-            chanceNewSame: 0,
-            chanceNewDiff: 0
-          },
-          timeSizeConstraints: {
-            intervalDelay: 500
-          }
-        }
-      },
-      extraLarge: {
         totalColumns: 250,
         totalRows: 120,
         totalCells: null,
         totalCellsFilled: 0,
         filling: false,
-        fillCenters: [],
         fillableCells: [],
+        showForm: true,
         grid: null,
         formConstraints: {
           colorChances: {
             same: 80,
             skew: 19
           },
-          skewConstraints: {
-            changeRange: 10
+          skew: {
+            changeRange: 10,
+            redLow: 0,
+            redUpper: 255,
+            blueLow: 0,
+            blueUpper: 255,
+            greenLow: 0,
+            greenUpper: 255
           },
-          nodeConstraints: {
+          node: {
             totalStart: 1,
             chanceNew: 0,
             chanceNewSame: 0,
             chanceNewDiff: 0
           },
-          timeSizeConstraints: {
-            intervalDelay: 250
+          timeSize: {
+            fillGroupSize: 50
+          }
+        }
+      },
+      extraLarge: {
+        totalColumns: 1250,
+        totalRows: 600,
+        totalCells: null,
+        totalCellsFilled: 0,
+        filling: false,
+        fillableCells: [],
+        showForm: true,
+        grid: null,
+        formConstraints: {
+          colorChances: {
+            same: 80,
+            skew: 19
+          },
+          skew: {
+            changeRange: 10,
+            redLow: 0,
+            redUpper: 255,
+            blueLow: 0,
+            blueUpper: 255,
+            greenLow: 0,
+            greenUpper: 255
+          },
+          node: {
+            totalStart: 1,
+            chanceNew: 0,
+            chanceNewSame: 0,
+            chanceNewDiff: 0
+          },
+          timeSize: {
+            fillGroupSize: 10
           }
         }
       }
@@ -131,70 +86,57 @@ class App extends Component {
   }
 
   componentDidMount() {
+    //Calculates and sets state for total cells based on total rows and total columns
     this.setState(prevState => ({
-      emptyGridsRendered: true,
-      small: {
-        ...prevState.small,
-        totalCells: this.state.small.totalRows * this.state.small.totalColumns,
-        grid: generateEmptyGrid(this.state.small, 'small'),
-      },
-      medium: {
-        ...prevState.medium,
-        totalCells: this.state.medium.totalRows * this.state.medium.totalColumns,
-        grid: generateEmptyGrid(this.state.medium, 'medium')
-      },
       large: {
         ...prevState.large,
-        totalCells: this.state.large.totalRows * this.state.large.totalColumns,
-        grid: generateEmptyGrid(this.state.large, 'large')
+        totalCells: this.state.large.totalRows * this.state.large.totalColumns
       },
       extraLarge: {
         ...prevState.extraLarge,
-        totalCells: this.state.extraLarge.totalRows * this.state.extraLarge.totalColumns,
-        grid: generateEmptyGrid(this.state.extraLarge, 'extraLarge')
+        totalCells: this.state.extraLarge.totalRows * this.state.extraLarge.totalColumns
       }
 
-    }))   
+    }))
   }
 
-  handleFormStart = (event, gridId) => {
-    event.preventDefault();
-
-    this.setState({ [gridId]: fillStart(this.state[gridId],gridId)})
-
-    const intervalDelay = this.state[gridId].formConstraints.timeSizeConstraints.intervalDelay;
-    const fillInterval = setInterval(() => {
-      if (this.state[gridId].totalCellsFilled < this.state[gridId].totalCells && this.state[gridId].filling) {
-        this.setState({
-          [gridId]: fillColor(this.state[gridId])
-        })
-      } else {
-        if (this.state[gridId].filling) {
-          this.setState({
-            [gridId]: {
-              ...this.state[gridId],
-              filling: false
-            }
-          })
-        }
-        clearInterval(fillInterval);
-        console.log('interval cleared')
-      }
-    },intervalDelay);
-  }
-
-  handleFormStop = (event, gridId) => {
-    event.preventDefault();
+  //Start or restart filling grid.
+  handleFormStart = (e, gridId) => {
+    e.preventDefault();
 
     this.setState({
       [gridId]: {
         ...this.state[gridId],
-        filling: false
+        filling: true
       }
+    })
+    
+    //Handle start by filling initial nodes, or restart
+    let newGrid = fillStart(this.state[gridId], gridId)
+
+    //Fill amount of cells specified by fillGroupSize 
+    newGrid = fillCellGroup(newGrid)
+
+    //Set state with new grid of filled cells
+    this.setState({
+      [gridId]: newGrid
     })
   }
 
+  //Toggles displaying form
+  handleForm = (e, gridId) => {
+    e.preventDefault();
+
+    this.setState({ [gridId]: {
+      ...this.state[gridId],
+      showForm: true
+    }})
+  }
+
+
+  //Updates any form values in "Color fill chances section"
   updateColorChances = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
@@ -203,57 +145,89 @@ class App extends Component {
           ...prevState[gridId].formConstraints,
           colorChances: {
             ...prevState[gridId].formConstraints.colorChances,
-            [valueId]: value
+            [valueId]: numValue
           }
         }
       }
     }))
   }
 
+  //Updates any form values in "Skew Constraints section"
   updateSkewConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          skewConstraints: {
-            ...prevState[gridId].formConstraints.skewConstraints,
-            [valueId]: value
+          skew: {
+            ...prevState[gridId].formConstraints.skew,
+            [valueId]: numValue
           }
         }
       }
     }))
   }
 
+  //Updates any form values in "Node Constraints section"
   updateNodeConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          nodeConstraints: {
-            ...prevState[gridId].formConstraints.nodeConstraints,
-            [valueId]: value
+          node: {
+            ...prevState[gridId].formConstraints.node,
+            [valueId]: numValue
           }
         }
       }
     }))
   }
 
+  //Updates any form values in "Time/Size Constraints section" (excluding total rows and total cells)
   updateTimeSizeConstraints = (gridId, valueId, value) => {
+    const numValue = value ? Number(value) : 0
     this.setState(prevState => ({
       ...prevState,
       [gridId]: {
         ...prevState[gridId],
         formConstraints: {
           ...prevState[gridId].formConstraints,
-          timeSizeConstraints: {
-            ...prevState[gridId].formConstraints.timeSizeConstraints,
-            [valueId]: value
+          timeSize: {
+            ...prevState[gridId].formConstraints.timeSize,
+            [valueId]: numValue
           }
         }
+      }
+    }))
+  }
+
+  //Updates total rows
+  updateGridRows = (gridId, value) => {
+    const totalRows = value ? Number(value) : 0
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        totalRows,
+        totalCells: totalRows * prevState[gridId].totalColumns
+      }
+    }))
+  }
+
+  //Updates total cells
+  updateGridCols = (gridId, value) => {
+    const totalColumns = value ? Number(value) : 0
+    this.setState(prevState => ({
+      ...prevState,
+      [gridId]: {
+        ...prevState[gridId],
+        totalColumns,
+        totalCells: totalColumns * prevState[gridId].totalRows
       }
     }))
   }
@@ -261,8 +235,6 @@ class App extends Component {
   
   render() {
     const contextValue = {
-      small: this.state.small,
-      medium: this.state.medium,
       large: this.state.large,
       extraLarge: this.state.extraLarge,
       formStart: this.handleFormStart,
@@ -270,7 +242,9 @@ class App extends Component {
       updateSkewConstraints: this.updateSkewConstraints,
       updateNodeConstraints: this.updateNodeConstraints,
       updateTimeSizeConstraints: this.updateTimeSizeConstraints,
-      formStop: this.handleFormStop
+      updateGridRows: this.updateGridRows,
+      updateGridCols: this.updateGridCols,
+      showForm: this.handleForm
     }
 
     return (
@@ -278,8 +252,9 @@ class App extends Component {
         <div className="App">
           <Nav />
           <main >
-            {this.state.emptyGridsRendered && <Route exact path={'/grid/:gridId'} component={GridForm}/>}
-            {this.state.emptyGridsRendered && <Route exact path={'/grid/:gridId'} component={Grid}/>}
+            {<Route exact path={'/grid/:gridId'} component={GridForm}/>}
+            {<Route exact path={'/grid/:gridId'} component={GridStatus}/>}
+            {<Route exact path={'/grid/:gridId'} component={Grid}/>}
           </main>
         </div> 
       </GridContext.Provider>    

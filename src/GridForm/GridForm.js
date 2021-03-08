@@ -10,16 +10,19 @@ export default class GridForm extends Component {
     static contextType = GridContext;
 
     render() {
-        return (
-            <form onSubmit={e => this.context.formStart(e, this.props.match.params.gridId)}>
+        const gridId = this.props.match.params.gridId
+
+        const formDisplay = this.context[gridId].showForm ? (
+            <form onSubmit={e => this.context.formStart(e, gridId)}>
                 <h2>Form Displayed Here</h2>
-                <ColorFillChances gridId={this.props.match.params.gridId}/>
-                <SkewConstraints gridId={this.props.match.params.gridId}/>
-                <NodeConstraints gridId={this.props.match.params.gridId}/>
-                <TimeSizeConstraints gridId={this.props.match.params.gridId}/>
+                <ColorFillChances gridId={gridId}/>
+                <SkewConstraints gridId={gridId}/>
+                <NodeConstraints gridId={gridId}/>
+                <TimeSizeConstraints gridId={gridId}/>
                 <button type='submit'>Start</button>
-                <button onClick={e => this.context.formStop(e, this.props.match.params.gridId)}>Stop</button>
             </form>
-        )
+        ) : <button className="adjust-form" onClick={e => this.context.showForm(e, gridId)} >Adjust Form</button>
+
+        return  formDisplay
     }
 }

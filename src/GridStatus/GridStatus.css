@@ -1,0 +1,11 @@
+.grid-status {
+    text-align: center;
+}
+
+.filling {
+    color: green;
+}
+
+.not-filling {
+    color: red;
+}

@@ -1,15 +1,5 @@
-import React, {Component} from 'react';
-import {randomRGB} from './colorFunctions';
 import generateEmptyGrid from './generateEmptyGrid';
-
-function randomFromRange(range) {
-    return Math.floor(Math.random() * range)
-}
-
-function randomFromArray(array) {
-    const i = randomFromRange(array.length)
-    return array[i]
-}
+import { randomFromRange, randomFromArray } from './helperFunctions';
 
 function selectRandomCell(totalColumns, totalRows) {
     const column = randomFromRange(totalColumns);
@@ -17,17 +7,21 @@ function selectRandomCell(totalColumns, totalRows) {
     return {column, row}
 }
 
-function selectFillCenter(currentGrid) {
-    const index = randomFromRange(currentGrid.fillCenters.length)
-    const coors = currentGrid.fillCenters[index]
-    console.log('Fill Center:')
-    console.log({coors, index})
-    return {coors, index}
-    
+//Generates random rgb value based on color range constraints
+export function rangedRandomRGB(gridConst) {
+    const colorRanges = gridConst.skew
+    const colorObject = {}
+    colorObject.red = (randomFromRange(colorRanges.redUpper - colorRanges.redLow + 1) + colorRanges.redLow)
+    colorObject.green = (randomFromRange(colorRanges.greenUpper - colorRanges.greenLow + 1) + colorRanges.greenLow)
+    colorObject.blue = (randomFromRange(colorRanges.blueUpper - colorRanges.blueLow + 1) + colorRanges.blueLow)
+    const rgb = `rgba(${colorObject.red}, ${colorObject.green}, ${colorObject.blue}, 1)`
+    colorObject.rgb = rgb
+    return colorObject
 }
 
+//Given a single cell's coordinates, 
+//retrieves coordinates of all surrounding cells within the grid
 function allSurrCoors(gridCols, cellCoor) {
-    console.log(gridCols)
     const columns = [cellCoor.column-1, cellCoor.column, cellCoor.column+1]
         .filter(num => num > -1 && num < gridCols.length)
     const rows = [cellCoor.row-1, cellCoor.row, cellCoor.row+1]
@@ -43,29 +37,29 @@ function allSurrCoors(gridCols, cellCoor) {
 
         }
     }
-    console.log('All Surrounding Coors')
-    console.log(coors)
     return coors
 }
 
+//Filters all surrounding cells coordinates so that only cells
+//with no color are returned.
 function getSurrEmpties(gridCols, cellCoor) {
     const surrCoors = allSurrCoors(gridCols, cellCoor)
     const surrEmpties = surrCoors.filter(coor => 
         gridCols[coor.column][coor.row].color === null)
-    console.log('Surrounding Empties:')
-    console.log(surrEmpties)
     return surrEmpties
 }
 
+//Filters all surrounding cells coordinates so that only cells
+//with colors are returned.
 function getSurrColors(gridCols, cellCoor) {
     const coors = allSurrCoors(gridCols, cellCoor);
     const surrColors = coors.filter(coor =>
         gridCols[coor.column][coor.row].color !== null)
-    console.log('Surrounding Colors:')
-    console.log(surrColors)
     return surrColors
 }
 
+//Updates fillable cells array with new fillable cells and removes
+//cell that is currently being filled
 function updateFillableCells(gridCols, fillableCells, currentCoor) {
     const newList = fillableCells.filter(cell => cell.id !== currentCoor.id)
     const allSurrEmpties = getSurrEmpties(gridCols, currentCoor)
@@ -78,48 +72,51 @@ function updateFillableCells(gridCols, fillableCells, currentCoor) {
     return newList.concat(newFillables)
 }
 
+//Given values for r, g, and b, select new random values that
+//are within the given skew range.
+//I.e. red = 110, skew = +- 10, new red returned = 117. 
 function skewColor(color, currentGridConstraints) {
-    const range = currentGridConstraints.skewConstraints.changeRange
+    const range = currentGridConstraints.skew.changeRange
     let red 
     let green
     let blue
-    const redChange = (Math.floor(Math.random() * range) + 1)
-    const greenChange = (Math.floor(Math.random() * range) + 1)
-    const blueChange = (Math.floor(Math.random() * range) + 1)
+    const redChange = (randomFromRange(range) + 1)
+    const greenChange = (randomFromRange(range) + 1)
+    const blueChange = (randomFromRange(range) + 1)
 
     if (Math.random() < .5) {
         red = color.red + redChange
-        if (red > 255) {
-            red = 255
+        if (red > currentGridConstraints.skew.redUpper) {
+            red = currentGridConstraints.skew.redUpper
         }
     } else {
         red = color.red - redChange
-        if (red < 0) {
-            red = 0
+        if (red < currentGridConstraints.skew.redLow) {
+            red = currentGridConstraints.skew.redLow
         }
     }
 
     if (Math.random() < .5) {
         green = color.green + greenChange
-        if (green > 255) {
-            green = 255
+        if (green > currentGridConstraints.skew.greenUpper) {
+            green = currentGridConstraints.skew.greenUpper
         }
     } else {
         green = color.green - greenChange
-        if (green < 0) {
-            green = 0
+        if (green < currentGridConstraints.skew.greenLow) {
+            green = currentGridConstraints.skew.greenLow
         }
     }
 
     if (Math.random() < .5) {
         blue = color.blue + blueChange
-        if (blue > 255) {
-            blue = 255
+        if (blue > currentGridConstraints.skew.blueUpper) {
+            blue = currentGridConstraints.skew.blueUpper
         }
     } else {
         blue = color.blue - blueChange
-        if (blue < 0) {
-            blue = 0
+        if (blue < currentGridConstraints.skew.blueLow) {
+            blue = currentGridConstraints.skew.blueLow
         }
     }
 
@@ -129,6 +126,11 @@ function skewColor(color, currentGridConstraints) {
     return newColor
 }
 
+//Randomly select (given the predetermined probabilities) 
+//whether the cell currently being filled will receive:
+//A. The same exact color as a surrounding cell
+//B. A skewed color based off the color of a surrounding cell
+//C. A completely random color
 function selectNewColor(surrColor, currentGridConstraints) {
     const probability = (Math.random()*100)
     const colorChances = currentGridConstraints.colorChances
@@ -138,26 +140,30 @@ function selectNewColor(surrColor, currentGridConstraints) {
     } else if (probability <= parseFloat(colorChances.same) + parseFloat(colorChances.skew)) {
         newColor = skewColor(surrColor, currentGridConstraints)
     } else {
-        newColor = randomRGB()
+        newColor = rangedRandomRGB(currentGridConstraints)
     }
     return newColor
 }
 
+
+//Fill initial starting nodes of grid, given the predetermined
+//amount of starting nodes.
 function fillInitCells(currentGrid) {
-    const totalStartNodes = currentGrid.formConstraints.nodeConstraints.totalStart
+    const totalStartNodes = currentGrid.formConstraints.node.totalStart
     for (let i = 1; i <= totalStartNodes; i++) {
         const cellCoor = selectRandomCell(currentGrid.totalColumns, currentGrid.totalRows);
-        currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = randomRGB();
+        currentGrid.grid.columns[cellCoor.column][cellCoor.row].color = rangedRandomRGB(currentGrid.formConstraints);
         currentGrid.grid.columns[cellCoor.column][cellCoor.row].opacity = 1;
         currentGrid.totalCellsFilled += 1
-        currentGrid.fillCenters.push(cellCoor)
         currentGrid.fillableCells = currentGrid.fillableCells.concat(getSurrEmpties(currentGrid.grid.columns, cellCoor))
     }
     return currentGrid
 }
 
+//If grid is generated or is completely full, generate new grid 
+//and fill initial cells. Otherwise, simply hide form for restart.
 export function fillStart(currentGrid, gridId) {
-    if (currentGrid.totalCellsFilled === currentGrid.totalCells) {
+    if (currentGrid.totalCellsFilled === currentGrid.totalCells || currentGrid.grid === null) {
         currentGrid.grid = generateEmptyGrid(currentGrid, gridId)
         currentGrid.totalCellsFilled = 0
     }
@@ -166,37 +172,16 @@ export function fillStart(currentGrid, gridId) {
         currentGrid = fillInitCells(currentGrid)
     }
 
-    currentGrid.filling = true
+    currentGrid.showForm = false
     return currentGrid
 }
 
-export function fillColor(currentGrid) {
+//Go through process of selecting a random fillable cell
+//and selecting a color for it.
+function fillColor(currentGrid) {
     const gridCols = currentGrid.grid.columns
     const fillableCoor = randomFromArray(currentGrid.fillableCells)
-    
-    // while (fillableCoor.length === 0) {
-    //     const fillCenter = selectFillCenter(currentGrid)
-    //     const surrEmpties = getSurrEmpties(currentGrid, fillCenter.coors)
-    //     if(surrEmpties.length === 0) {
-    //         fillCenters.splice(fillCenter.index, 1)
-    //     } else if (surrEmpties.length === 1) {
-    //         fillableCoor[0] = surrEmpties[0]
-    //         fillCenters.splice(fillCenter.index, 1)
-    //     } else {
-    //         fillableCoor[0] = randomFromArray(surrEmpties)
-    //     }
-    // }
-
-    // if(getSurrEmpties(currentGrid, fillableCoor[0]).length !== 0) {
-    //     fillCenters.push(fillableCoor[0])
-    // }
-    
-    
-    console.log('Fillable Coor')
-    console.log(fillableCoor)
-
     const fillableCells = updateFillableCells(gridCols, currentGrid.fillableCells, fillableCoor)
-
     const surrColorsCoors = getSurrColors(gridCols, fillableCoor)
     const baseColorCoor = randomFromArray(surrColorsCoors)
     const baseColor = currentGrid.grid.columns[baseColorCoor.column][baseColorCoor.row].color
@@ -204,8 +189,27 @@ export function fillColor(currentGrid) {
     currentGrid.grid.columns[fillableCoor.column][fillableCoor.row].color = newColor;
     currentGrid.grid.columns[fillableCoor.column][fillableCoor.row].opacity = 1;
     currentGrid.totalCellsFilled += 1;
-    // currentGrid.fillCenters = fillCenters
     currentGrid.fillableCells = fillableCells
 
     return currentGrid
+}
+
+//Fill grid until the designated portion of grid to be filled
+//is reached, or until grid is full, whichever comes first.
+export function fillCellGroup(currentGrid) {
+    const groupSizePerc = currentGrid.formConstraints.timeSize.fillGroupSize / 100
+    const groupSize = Math.floor(currentGrid.totalCells * groupSizePerc)
+    const cellsLeft = currentGrid.totalCells - currentGrid.totalCellsFilled
+    let newGrid = currentGrid
+    if (cellsLeft > groupSize) {
+        for (let i = 0; i < groupSize; i++) {
+            newGrid = fillColor(newGrid)
+        }
+    } else {
+        for (let i = 0; i < cellsLeft; i++) {
+            newGrid = fillColor(newGrid)
+        }
+    }
+    
+    return newGrid
 }
