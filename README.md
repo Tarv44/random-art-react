@@ -10,7 +10,7 @@ of color in a visual art piece. The program is given constraints via the form, a
 background colors for each div while staying within the given constraints. The result is an
 art display that appears similar to an impressionist painting.
 
-![Example Screenshot](./demo-screenshots/vis-art-gen-ex-6)
-![Example Screenshot](./demo-screenshots/vis-art-gen-ex-1) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-2)
-![Example Screenshot](./demo-screenshots/vis-art-gen-ex-3) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-4)
-![Example Screenshot](./demo-screenshots/vis-art-gen-ex-5) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-7)
+![Example Screenshot](./demo-screenshots/vis-art-gen-ex-6.png)
+![Example Screenshot](./demo-screenshots/vis-art-gen-ex-1.png) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-2.png)
+![Example Screenshot](./demo-screenshots/vis-art-gen-ex-3.png) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-4.png)
+![Example Screenshot](./demo-screenshots/vis-art-gen-ex-5.png) ![Example Screenshot](./demo-screenshots/vis-art-gen-ex-7.png)
